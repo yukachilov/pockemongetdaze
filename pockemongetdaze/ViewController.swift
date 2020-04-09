@@ -37,28 +37,12 @@ class ViewController: UIViewController,UISearchBarDelegate {
     
     struct ItemJson: Codable {
         
-        let no: Int?
-        
         let name: String?
         
-        let form: String?
-        
-        let isMegaEvolution: Bool?
-        
-        let evolutions: Int?
-        
-        let types: String?
-        
-        let abilities: String?
-        
-        let hiddenAbilities: String?
-        
-        var stats: Int?{
-            let hp: Int?
-            let attack: Int?
-            
-        }
-        
+    }
+    
+    struct ResultJson: Codable {
+        let item:[ItemJson]?
     }
     
     
@@ -68,12 +52,36 @@ class ViewController: UIViewController,UISearchBarDelegate {
             return
         }
         
-        guard let req_url = URL(string: "https://github.com/kotofurumiya/pokemon_data/blob/master/data/pokemon_data.json") else {
+        guard let req_url = URL(string: "https://usumapi.nelke.jp/v1/pokemon/?no={%1}&?key={%2}") else {
             return
         }
         print(req_url)
+        
+        let req = URLRequest(url: req_url)
+        let session = URLSession(configuration: .default, delegate: nil,delegateQueue: OperationQueue.main)
+        
+        let task = session.dataTask(with: req, completionHandler: {
+            (data ,response , error) in
+            
+            session.finishTasksAndInvalidate()
+            
+            do {
+                
+                let decoder = JSONDecoder()
+                
+                let json = try decoder.decode(ResultJson.self, from: data!)
+                
+                print(json)
+                
+            } catch {
+                print("エラーだよ")
+            }
+        })
+        
+        task.resume()
+        
     }
     
-    
 }
+
 
